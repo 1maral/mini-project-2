@@ -138,6 +138,29 @@ public class BigFraction {
   } // add(BigFraction)
 
   /**
+   * Subtract another faction from this fraction.
+   *
+   * @param subend
+   *   The fraction to add.
+   *
+   * @return the result of the subtraction.
+   */
+  public BigFraction subtract(BigFraction subend) {
+    BigInteger resultNumerator;
+    BigInteger resultDenominator;
+
+    // The denominator of the result is the product of this object's
+    // denominator and addend's denominator
+    resultDenominator = this.denom.multiply(subend.denom);
+    // The numerator is more complicated
+    resultNumerator =
+      (this.num.multiply(subend.denom)).subtract(subend.num.multiply(this.denom));
+
+    // Return the computed value
+    return new BigFraction(resultNumerator, resultDenominator);
+  } // subtract(BigFraction)
+
+  /**
    * Multiply another fraction to this fraction.
    *
    * @param frac
@@ -157,7 +180,30 @@ public class BigFraction {
 
     // Return the computed value
     return new BigFraction(resultNumerator, resultDenominator);
-  } // add(BigFraction)
+  } // multiply(BigFraction)
+
+  /**
+   * Divide this fraction by another fraction.
+   *
+   * @param frac
+   *   The fraction to divide.
+   *
+   * @return the result of the division.
+   */
+  public BigFraction divide(BigFraction frac) {
+    BigInteger resultNumerator;
+    BigInteger resultDenominator;
+
+    // The denominator of the result is the product of this object's
+    // denominator and frac's numerator
+    resultDenominator = this.denom.multiply(frac.num);
+    // The numerator of the result is the product of this object's
+    // numerator and frac's denominator
+    resultNumerator = this.num.multiply(frac.denom);
+
+    // Return the computed value
+    return new BigFraction(resultNumerator, resultDenominator);
+  } // divide(BigFraction)
 
   /**
    * Get the denominator of this fraction.
@@ -198,7 +244,7 @@ public class BigFraction {
    * Return fractional part.
    * @num numerator - whole number
    * @denum denumerator - whole number
-   * @return a string that represents the fraction.
+   * @return a BigFraction that represents the fraction.
    */
   public static BigFraction fractional(int num, int denum) {
     BigInteger resultNumerator;
@@ -207,5 +253,19 @@ public class BigFraction {
     resultNumerator = BigInteger.valueOf(num % denum);
     resultDenominator = BigInteger.valueOf(denum);
     return new BigFraction(resultNumerator, resultDenominator);
+  } // fractional(int, int)
+
+  /**
+   * Return whole part of the fraction.
+   * @num numerator - whole number
+   * @denum denumerator - whole number
+   * @return a BigInteger that represents the whole part.
+   */
+  public static BigInteger whole(int num, int denum) {
+    BigInteger result;
+
+    result = BigInteger.valueOf((int)(num / denum));
+
+    return result;
   } // fractional(int, int)
 } // class BigFraction
