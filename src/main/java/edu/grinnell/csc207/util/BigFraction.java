@@ -77,6 +77,9 @@ public class BigFraction {
    * @return 
    */
   public BigFraction(int numerator, int denominator) {
+    if (denominator == 0) {
+      throw new IllegalArgumentException("Denominator cannot be zero.");
+    } // if
     this.num = BigInteger.valueOf(numerator);
     this.denom = BigInteger.valueOf(denominator);
   } // BigFraction(int, int)
@@ -104,7 +107,9 @@ public class BigFraction {
     int indx = str.indexOf('/');
     this.num = BigInteger.valueOf(Integer.valueOf(str.substring(0, indx)));
     this.denom = BigInteger.valueOf(Integer.valueOf(str.substring(indx+1, str.length())));
-
+    if (this.denom.equals(BigInteger.ZERO)) {
+      throw new IllegalArgumentException("Denominator cannot be zero.");
+    } // if
   } // BigFraction
 
   // +---------+------------------------------------------------------
@@ -137,7 +142,7 @@ public class BigFraction {
     resultDenominator = this.denom.multiply(addend.denom);
     // The numerator is more complicated
     resultNumerator =
-      (this.num.multiply(addend.denom)).add(addend.num.multiply(this.denom));
+    (this.num.multiply(addend.denom)).add(addend.num.multiply(this.denom));;
 
     // Return the computed value
     return new BigFraction(resultNumerator, resultDenominator);

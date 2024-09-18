@@ -20,7 +20,7 @@ public class BFCalculator {
   // | Constructors |
   // +--------------+
   public BFCalculator(){
-    this.lastVal = new BigFraction(0, 1);
+    this.lastVal = new BigFraction(0);
   }
 
   // +---------+-----------------------------------------------------
@@ -35,6 +35,7 @@ public class BFCalculator {
   //adds val to the last computed value
   public void add(BigFraction val) {
     this.lastVal.add(val);
+    System.out.println("lastVal in calc: " + this.lastVal);
   } // add
   
   //subtracts val from the last computed value
@@ -54,6 +55,6 @@ public class BFCalculator {
 
   //resets the last computed value to 0
   public void clear() {
-    this.lastVal = new BigFraction(0, 1);
+    this.lastVal = new BigFraction(0);
   } // clear
 } // class BFCalculator

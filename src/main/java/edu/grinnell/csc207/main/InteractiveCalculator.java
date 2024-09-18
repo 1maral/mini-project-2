@@ -29,23 +29,19 @@ public class InteractiveCalculator {
       return;
     } // if
 
-    switch (operator) {
-      case "+":
-        calculator.add(value);
-        break;
-      case "-":
+    if (operator.equals("+")) {
+      calculator.add(value);
+      System.out.println("value in add: " + value);
+    } else if (operator.equals("-")) {
         calculator.subtract(value);
-        break;
-      case "*":
+    } else if (operator.equals("*")) {
         calculator.multiply(value);
-        break;
-      case "/":
+    } else if (operator.equals("/")) {
         calculator.divide(value);
-        break;
-      default:
+    } else {
         System.err.println("Error: Unknown operator.\n");
         return;
-    } // switch
+    }   // if
   } // performOperation
 
   /**
@@ -68,6 +64,8 @@ public class InteractiveCalculator {
 
         if (currentValue == null) {
           currentValue = regValue;
+          calculator.clear();
+          calculator.add(regValue);
         } else {
           performOperation(calculator, regValue, operator);
         } // else
@@ -87,10 +85,12 @@ public class InteractiveCalculator {
           numValue = new BigFraction(value);
         } // if
 
+        System.out.println("currentValue in num before null: " + currentValue);
         if (currentValue == null) {
+          System.out.println("currentValue in num null: " + currentValue);
           currentValue = numValue;
           calculator.clear();
-          calculator.add(numValue);
+          calculator.add(currentValue);
         } else {
           performOperation(calculator, numValue, operator);
         } // if
@@ -120,7 +120,7 @@ public class InteractiveCalculator {
       if (register >= 'a' && register <= 'z') {
         BigFraction lastValue = calculator.get();
         registers.store(register, lastValue);
-        System.out.println("STORED" + lastValue + " in register " + register);
+        System.out.println("STORED " + lastValue + " in register " + register);
       } else {
         System.err.println("Error: Register char is not a lowercase letter.\n");
         return;
@@ -164,8 +164,18 @@ public class InteractiveCalculator {
       } else {
         // Otherwise, treat it as an arithmetic expression
         BigFraction result = evaluateExpression(values, calculator, registers);
-        System.out.println(result);
-        //System.err.println("Error: Invalid expression.\n");
+        calculator.add(new BigFraction(10));
+        pen.println(calculator.get());
+        calculator.multiply(new BigFraction(2));
+        pen.println(calculator.get());
+        calculator.subtract(new BigFraction(5,1));
+        pen.println(calculator.get());
+        calculator.divide(new BigFraction("1/2"));
+        pen.println(calculator.get());
+
+        if (result!=null){
+          pen.println(result);
+        } // if
       } // else
     } // while
     pen.close();
