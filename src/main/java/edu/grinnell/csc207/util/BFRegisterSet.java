@@ -9,45 +9,56 @@ package edu.grinnell.csc207.util;
 /**
  * Simple counters.
  *
- * Maral Bat-Erdene, Khanh Do
  */
 public class BFRegisterSet {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
-  int starter;
-  int count;
+
+  /** The ASCII value for the lowercase letter 'a'. */
+  static final int LOW_MIN = 'a';
+
+  /** The number of letters in the English alphabet,
+   *  used to handle wrapping around the end of the alphabet. */
+  static final int ALPHABET_SIZE = 26;
+
+  BigFraction[] regArray;
 
   // +--------------+------------------------------------------------
   // | Constructors |
   // +--------------+
 
-  public Counter(){
-    this.count = 0;
-    this.starter = 0;
-  }
+  public BFRegisterSet(){
+    this.regArray = new BigFraction[ALPHABET_SIZE];
 
-  public Counter(int _count) {
-    this.starter = _count;
-    this.count = _count;
-  }
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+      this.regArray[i] = null;
+    } // for
+  } // BFRegisterSet
+
   // +---------+-----------------------------------------------------
   // | Methods |
   // +---------+
-  public void increment(){
-    this.count ++;
-  }
 
-  public int get(){
-    return this.count;
-  }
+  /**
+   * Converts a lowercase letter to its corresponding integer value.
+   *
+   * @param letter The lowercase letter to be converted.
+   * @return The integer value corresponding to the given letter.
+   */
+  private static int letter2int(char letter) {
+    // Compute the integer value by subtracting the ASCII value of 'a', so 'a' maps to 0
+    int intVal = letter - LOW_MIN;
+    return (intVal);
+  } // letter2int
 
-  public String toString() {
-    return String.valueOf(this.count);
-  }
+  //stores the given value in the specified register
+  public void store(char register, BigFraction val) {
+    regArray[letter2int(register)] = val;
+  } // store
 
-  public void reset() {
-    this.count = this.starter;
-  }
-
+  //retrieves the value from the given register
+  public BigFraction get(char register) {
+    return regArray[letter2int(register)];
+  } // get
 } // class Counter

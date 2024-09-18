@@ -56,8 +56,6 @@ public class BigFraction {
   /**
    * Build a new fraction with numerator num and denominator denom.
    *
-   * Warning! Not yet stable.
-   *
    * @param numerator
    *   The numerator of the fraction.
    * @param denominator
@@ -72,8 +70,6 @@ public class BigFraction {
   /**
    * Build a new fraction with numerator num and denominator denom.
    *
-   * Warning! Not yet stable.
-   *
    * @param numerator
    *   The numerator of the fraction.
    * @param denominator
@@ -86,9 +82,19 @@ public class BigFraction {
   } // BigFraction(int, int)
 
   /**
-   * Build a new fraction by parsing a string.
+   * Build a new fraction from a whole number with 1 as a denominator.
    *
-   * Warning! Not yet implemented.
+   * @param wholeNumber
+   *   The whole numerator of the fraction.
+   * @return 
+   */
+  public BigFraction(int wholeNumber) {
+    this.num = BigInteger.valueOf(wholeNumber);
+    this.denom = BigInteger.valueOf(1);
+  } // BigFraction(int, int)
+
+  /**
+   * Build a new fraction by parsing a string.
    *
    * @param str
    *   The fraction in string form
@@ -246,7 +252,7 @@ public class BigFraction {
    * @denum denumerator - whole number
    * @return a BigFraction that represents the fraction.
    */
-  public static BigFraction fractional(int num, int denum) {
+  public static BigFraction fractionalPart(int num, int denum) {
     BigInteger resultNumerator;
     BigInteger resultDenominator;
 
@@ -261,11 +267,35 @@ public class BigFraction {
    * @denum denumerator - whole number
    * @return a BigInteger that represents the whole part.
    */
-  public static BigInteger whole(int num, int denum) {
+  public static BigInteger wholePart(int num, int denum) {
     BigInteger result;
 
     result = BigInteger.valueOf((int)(num / denum));
-
     return result;
   } // fractional(int, int)
+
+  public static boolean isInteger(String str) {
+    try {
+        Integer.valueOf(str);
+        return true;
+    } catch (NumberFormatException e) {
+        return false;
+    } // try
+  } // isInteger
+
+  public static boolean isFraction(String str) {
+      if (str.contains("/")) {
+          String[] parts = str.split("/");
+          if (parts.length == 2) {
+            try {
+              Integer.valueOf(parts[0]);
+              Integer.valueOf(parts[1]);
+              return true;
+            } catch (NumberFormatException e) {
+                return false;
+            } // try
+          } // if
+      } // if
+      return false;
+  } // isFraction
 } // class BigFraction
