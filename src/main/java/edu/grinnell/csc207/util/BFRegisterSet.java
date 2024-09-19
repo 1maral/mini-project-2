@@ -7,8 +7,7 @@
 package edu.grinnell.csc207.util;
 
 /**
- * Simple counters.
- *
+ * A class representing a set of registers for storing BigFraction values.
  */
 public class BFRegisterSet {
   // +--------+------------------------------------------------------
@@ -22,13 +21,26 @@ public class BFRegisterSet {
    *  used to handle wrapping around the end of the alphabet. */
   static final int ALPHABET_SIZE = 26;
 
-  BigFraction[] regArray;
+  /**
+   * An array of BigFraction objects representing the registers.
+   * Each index corresponds to a register (0 for 'a', 1 for 'b', etc.).
+   */
+  private BigFraction[] regArray;
 
   // +--------------+------------------------------------------------
   // | Constructors |
   // +--------------+
 
-  public BFRegisterSet(){
+  /**
+   * Constructs a new BFRegisterSet.
+   *
+   * This constructor initializes an array of registers to store
+   * BigFraction values. The size of the array is determined by the
+   * constant ALPHABET_SIZE, representing the number of registers available
+   *
+   * Each register is initially set to null to indicate that it is empty.
+   */
+  public BFRegisterSet() {
     this.regArray = new BigFraction[ALPHABET_SIZE];
 
     for (int i = 0; i < ALPHABET_SIZE; i++) {
@@ -52,12 +64,30 @@ public class BFRegisterSet {
     return (intVal);
   } // letter2int
 
-  //stores the given value in the specified register
+  /**
+   * Stores the given value in the specified register.
+   *
+   * This method takes a character representing the register (e.g., 'a', 'b', etc.)
+   * and stores the provided BigFraction value in the corresponding index of the register array.
+   *
+   * @param register the character representing the register (must be a lowercase letter)
+   * @param val the BigFraction value to be stored in the register
+   * @throws IllegalArgumentException if the register character is invalid (not a lowercase letter)
+   */
   public void store(char register, BigFraction val) {
     regArray[letter2int(register)] = val;
   } // store
 
-  //retrieves the value from the given register
+  /**
+   * Retrieves the value from the given register.
+   *
+   * This method takes a character representing the register (e.g., 'a', 'b', etc.)
+   * and returns the BigFraction value stored in the corresponding index of the register array.
+   *
+   * @param register the character representing the register (must be a lowercase letter)
+   * @return the BigFraction value stored in the specified register, or null if not set
+   * @throws IllegalArgumentException if the register character is invalid (not a lowercase letter)
+   */
   public BigFraction get(char register) {
     return regArray[letter2int(register)];
   } // get

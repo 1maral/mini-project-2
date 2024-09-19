@@ -4,10 +4,10 @@
  *  Maral Bat-Erdene
  *  2024-09-14
  */
- package edu.grinnell.csc207.util;
+package edu.grinnell.csc207.util;
 
- import java.math.BigInteger;
- 
+import java.math.BigInteger;
+
  /**
   * A simple implementation of arbitrary-precision Fractions.
   *
@@ -44,10 +44,10 @@ public class BigFraction {
   // +--------+
 
   /** The numerator of the fraction. Can be positive, zero or negative. */
-  BigInteger num;
+  private BigInteger num;
 
   /** The denominator of the fraction. Must be non-negative. */
-  BigInteger denom;
+  private BigInteger denom;
 
   // +--------------+-------------------------------------------------
   // | Constructors |
@@ -60,7 +60,7 @@ public class BigFraction {
    *   The numerator of the fraction.
    * @param denominator
    *   The denominator of the fraction.
-   * @return 
+   * @return
    */
   public BigFraction(BigInteger numerator, BigInteger denominator) {
     this.num = numerator;
@@ -74,7 +74,7 @@ public class BigFraction {
    *   The numerator of the fraction.
    * @param denominator
    *   The denominator of the fraction.
-   * @return 
+   * @return
    */
   public BigFraction(int numerator, int denominator) {
     if (denominator == 0) {
@@ -89,11 +89,11 @@ public class BigFraction {
    *
    * @param wholeNumber
    *   The whole numerator of the fraction.
-   * @return 
+   * @return
    */
   public BigFraction(int wholeNumber) {
     this.num = BigInteger.valueOf(wholeNumber);
-    this.denom = BigInteger.valueOf(1);
+    this.denom = BigInteger.ONE;
   } // BigFraction(int, int)
 
   /**
@@ -101,14 +101,24 @@ public class BigFraction {
    *
    * @param str
    *   The fraction in string form
-   * @return 
+   * @return
    */
   public BigFraction(String str) {
+    // Check if the input string contains a '/'
     int indx = str.indexOf('/');
-    this.num = BigInteger.valueOf(Integer.valueOf(str.substring(0, indx)));
-    this.denom = BigInteger.valueOf(Integer.valueOf(str.substring(indx+1, str.length())));
-    if (this.denom.equals(BigInteger.ZERO)) {
-      throw new IllegalArgumentException("Denominator cannot be zero.");
+    if (indx == -1) {
+      // If there's no '/', treat the string as a whole number
+      this.num = BigInteger.valueOf(Integer.valueOf(str));
+      this.denom = BigInteger.ONE; // Set denominator to 1
+    } else {
+      // If there is a '/', parse the numerator and denominator
+      this.num = BigInteger.valueOf(Integer.valueOf(str.substring(0, indx)));
+      this.denom = BigInteger.valueOf(Integer.valueOf(str.substring(indx + 1)));
+
+      // Check for zero denominator
+      if (this.denom.equals(BigInteger.ZERO)) {
+        throw new IllegalArgumentException("Denominator cannot be zero.");
+      } // if
     } // if
   } // BigFraction
 
@@ -141,11 +151,10 @@ public class BigFraction {
     // denominator and addend's denominator
     resultDenominator = this.denom.multiply(addend.denom);
     // The numerator is more complicated
-    resultNumerator =
-    (this.num.multiply(addend.denom)).add(addend.num.multiply(this.denom));;
+    resultNumerator = (this.num.multiply(addend.denom)).add(addend.num.multiply(this.denom));
 
     // Return the computed value
-    return new BigFraction(resultNumerator, resultDenominator);
+    return (new BigFraction(resultNumerator, resultDenominator)).simplify();
   } // add(BigFraction)
 
   /**
@@ -168,7 +177,7 @@ public class BigFraction {
       (this.num.multiply(subend.denom)).subtract(subend.num.multiply(this.denom));
 
     // Return the computed value
-    return new BigFraction(resultNumerator, resultDenominator);
+    return (new BigFraction(resultNumerator, resultDenominator)).simplify();
   } // subtract(BigFraction)
 
   /**
@@ -190,7 +199,7 @@ public class BigFraction {
     resultNumerator = this.num.multiply(frac.num);
 
     // Return the computed value
-    return new BigFraction(resultNumerator, resultDenominator);
+    return (new BigFraction(resultNumerator, resultDenominator)).simplify();
   } // multiply(BigFraction)
 
   /**
@@ -213,7 +222,7 @@ public class BigFraction {
     resultNumerator = this.num.multiply(frac.denom);
 
     // Return the computed value
-    return new BigFraction(resultNumerator, resultDenominator);
+    return (new BigFraction(resultNumerator, resultDenominator)).simplify();
   } // divide(BigFraction)
 
   /**
@@ -222,7 +231,7 @@ public class BigFraction {
    * @return the denominator
    */
   public BigInteger denominator() {
-    return this.denom;
+    return this.simplify().denom;
   } // denominator()
 
   /**
@@ -231,7 +240,7 @@ public class BigFraction {
    * @return the numerator
    */
   public BigInteger numerator() {
-    return this.num;
+    return this.simplify().num;
   } // numerator()
 
   /**
@@ -245,62 +254,112 @@ public class BigFraction {
       return "0";
     } // if it's zero
 
-    // Lump together the string represention of the numerator,
-    // a slash, and the string representation of the denominator
-    // return this.num.toString().concat("/").concat(this.denom.toString());
-    return this.num + "/" + this.denom;
+    // Simplify the fraction first
+    BigFraction simplified = this.simplify();
+
+    // Check if there is no fractional part (i.e., it is a whole number)
+    if (fractionalPart(simplified.num.intValue(), simplified.denom.intValue())
+            .numerator().equals(BigInteger.ZERO)) {
+      return simplified.num.toString(0); // Return just the whole part
+    } else {
+      // Return the simplified fraction
+      return simplified.num + "/" + simplified.denom;
+    } // if
   } // toString()
 
-  /**
-   * Return fractional part.
-   * @num numerator - whole number
-   * @denum denumerator - whole number
-   * @return a BigFraction that represents the fraction.
-   */
-  public static BigFraction fractionalPart(int num, int denum) {
+/**
+ * Simplifies the fraction to its lowest terms.
+ *
+ * This method calculates the greatest common divisor (GCD) of the numerator
+ * and denominator, then divides both by this value to produce a simplified
+ * fraction. It ensures that the denominator remains positive, negating the
+ * numerator if necessary.
+ *
+ * @return a new BigFraction that represents the simplified version of this fraction.
+ * @throws IllegalArgumentException if the current fraction is invalid
+ */
+  public BigFraction simplify() {
+    BigInteger gcd = (this.num).gcd(this.denom); // Get the GCD of numerator and denominator
+
+    // Divide both numerator and denominator by their GCD
+    BigInteger simplifiedNum = this.num.divide(gcd);
+    BigInteger simplifiedDenom = this.denom.divide(gcd);
+
+    // Ensure the denominator is positive
+    if (simplifiedDenom.intValue() < 0) {
+      simplifiedNum = simplifiedNum.negate();
+      simplifiedDenom = simplifiedDenom.negate();
+    } // if
+    return new BigFraction(simplifiedNum, simplifiedDenom);
+  } // simplify
+
+/**
+ * Calculates the fractional part of a given fraction.
+ *
+ * @param num the numerator (whole number)
+ * @param denom the denominator (whole number, must not be zero)
+ * @return a BigFraction representing the fractional part of the fraction
+ */
+  public static BigFraction fractionalPart(int num, int denom) {
     BigInteger resultNumerator;
     BigInteger resultDenominator;
 
-    resultNumerator = BigInteger.valueOf(num % denum);
-    resultDenominator = BigInteger.valueOf(denum);
+    resultNumerator = BigInteger.valueOf(num % denom);
+    resultDenominator = BigInteger.valueOf(denom);
     return new BigFraction(resultNumerator, resultDenominator);
   } // fractional(int, int)
 
   /**
-   * Return whole part of the fraction.
-   * @num numerator - whole number
-   * @denum denumerator - whole number
-   * @return a BigInteger that represents the whole part.
+   * Calculates the whole part of a fraction.
+   *
+   * @param num the numerator (whole number)
+   * @param denom the denominator (whole number)
+   * @return a BigInteger representing the whole part of the fraction
    */
-  public static BigInteger wholePart(int num, int denum) {
+  public static BigInteger wholePart(int num, int denom) {
     BigInteger result;
 
-    result = BigInteger.valueOf((int)(num / denum));
+    result = BigInteger.valueOf((int) (num / denom));
     return result;
   } // fractional(int, int)
 
+  /**
+   * Checks if the given string represents an integer.
+   *
+   * @param str the string to check
+   * @return true if the string can be parsed as an integer; false otherwise
+   */
   public static boolean isInteger(String str) {
     try {
-        Integer.valueOf(str);
-        return true;
+      Integer.valueOf(str);
+      return true;
     } catch (NumberFormatException e) {
-        return false;
+      return false;
     } // try
   } // isInteger
 
+  /**
+   * Checks if the given string represents a fraction in the format "numerator/denominator".
+   *
+   * This method verifies that the string contains exactly one '/' character,
+   * splits the string into two parts, and checks if both parts can be parsed as integers.
+   *
+   * @param str the string to check
+   * @return true if the string represents a valid fraction; false otherwise
+   */
   public static boolean isFraction(String str) {
-      if (str.contains("/")) {
-          String[] parts = str.split("/");
-          if (parts.length == 2) {
-            try {
-              Integer.valueOf(parts[0]);
-              Integer.valueOf(parts[1]);
-              return true;
-            } catch (NumberFormatException e) {
-                return false;
-            } // try
-          } // if
+    if (str.contains("/")) {
+      String[] parts = str.split("/");
+      if (parts.length == 2) {
+        try {
+          Integer.valueOf(parts[0]);
+          Integer.valueOf(parts[1]);
+          return true;
+        } catch (NumberFormatException e) {
+          return false;
+        } // try
       } // if
-      return false;
+    } // if
+    return false;
   } // isFraction
 } // class BigFraction

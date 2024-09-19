@@ -7,53 +7,79 @@
 package edu.grinnell.csc207.util;
 
 /**
- * Simple counters.
- *
+ * A simple calculator for performing arithmetic operations on BigFraction values.
  */
 public class BFCalculator {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
-  BigFraction lastVal;
+  /**
+   * The last computed BigFraction value.
+   */
+  private BigFraction lastVal;
 
   // +--------------+------------------------------------------------
   // | Constructors |
   // +--------------+
-  public BFCalculator(){
-    this.lastVal = new BigFraction(0);
-  }
+  /**
+   * Initializes the BFCalculator with a last value of 0.
+   */
+  public BFCalculator() {
+    this.lastVal = new BigFraction(0, 1);
+  } // BFCalculator
 
   // +---------+-----------------------------------------------------
   // | Methods |
   // +---------+
 
-  //gets the last computed value (returns 0 if there is no such value)
-  public BigFraction get(){
+  /**
+   * Gets the last computed value.
+   *
+   * @return the last computed BigFraction value, or 0 if there is no such value
+   */
+  public BigFraction get() {
     return this.lastVal;
   } // get
 
-  //adds val to the last computed value
+  /**
+   * Adds the specified BigFraction value to the last computed value.
+   *
+   * @param val the BigFraction value to add
+   */
   public void add(BigFraction val) {
-    this.lastVal.add(val);
-    System.out.println("lastVal in calc: " + this.lastVal);
+    this.lastVal = this.lastVal.add(val);
   } // add
-  
-  //subtracts val from the last computed value
+
+  /**
+   * Subtracts the specified BigFraction value from the last computed value.
+   *
+   * @param val the BigFraction value to subtract
+   */
   public void subtract(BigFraction val) {
-    this.lastVal.subtract(val);
+    this.lastVal = this.lastVal.subtract(val);
   } // subtract
 
-  //multiplies the last computed value by val
+  /**
+   * Multiplies the last computed value by the specified BigFraction value.
+   *
+   * @param val the BigFraction value to multiply by
+   */
   public void multiply(BigFraction val) {
-    this.lastVal.multiply(val);
+    this.lastVal = this.lastVal.multiply(val);
   } // multiply
 
-  //divides the last computed value by val
+  /**
+   * Divides the last computed value by the specified BigFraction value.
+   *
+   * @param val the BigFraction value to divide by
+   */
   public void divide(BigFraction val) {
-    this.lastVal.divide(val);
+    this.lastVal = this.lastVal.divide(val);
   } // divide
 
-  //resets the last computed value to 0
+  /**
+   * Resets the last computed value to 0.
+   */
   public void clear() {
     this.lastVal = new BigFraction(0);
   } // clear

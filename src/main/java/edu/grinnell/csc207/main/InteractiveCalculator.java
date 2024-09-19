@@ -14,6 +14,9 @@ import edu.grinnell.csc207.util.BigFraction;
 import edu.grinnell.csc207.util.BFCalculator;
 import edu.grinnell.csc207.util.BFRegisterSet;
 
+/**
+ * A calculator that performs arithmetic operations on BigFraction values.
+ */
 public class InteractiveCalculator {
   // +---------+------------------------------------------------------
   // | Methods |
@@ -21,120 +24,163 @@ public class InteractiveCalculator {
 
   /**
    * Performs an arithmetic operation using the calculator.
+   *
+   * @param calculator the BFCalculator instance to perform the operation on
+   * @param value the BigFraction value to operate with
+   * @param operator the operator indicating the operation to perform
+   * @return true if the operation was successful, false otherwise
    */
-  private static void 
-  performOperation(BFCalculator calculator, BigFraction value, String operator) {
+  public static boolean
+        performOperation(BFCalculator calculator, BigFraction value, String operator) {
+    // Check if the operator is given
     if (operator == null) {
-      System.err.println("Error: Operator missing.\n");
-      return;
+      System.err.println("Error: Operator missing.");
+      return false;
     } // if
 
     if (operator.equals("+")) {
       calculator.add(value);
-      System.out.println("value in add: " + value);
+      return true;
     } else if (operator.equals("-")) {
-        calculator.subtract(value);
+      calculator.subtract(value);
+      return true;
     } else if (operator.equals("*")) {
-        calculator.multiply(value);
+      calculator.multiply(value);
+      return true;
     } else if (operator.equals("/")) {
-        calculator.divide(value);
+      calculator.divide(value);
+      return true;
     } else {
-        System.err.println("Error: Unknown operator.\n");
-        return;
-    }   // if
+      System.err.println("Error: Unknown operator.");
+      return false;
+    } // if
   } // performOperation
 
   /**
    * Evaluates an expression and returns the result as a BigFraction.
+   *
+   * @param values an array of strings representing the expression
+   * @param calculator the BFCalculator instance to perform calculations
+   * @param registers the BFRegisterSet for storing and retrieving values
+   * @return the result of the evaluated expression, or null if invalid
    */
-  private static BigFraction
-  evaluateExpression(String[] values, BFCalculator calculator, BFRegisterSet registers) {
+  public static BigFraction
+        evaluateExpression(String[] values, BFCalculator calculator, BFRegisterSet registers) {
     BigFraction currentValue = null;
     String operator = null;
+    int numOps = 0;
+    int numVals = 0;
 
+    // Loop through each value in the expression
     for (String value : values) {
-      // Check if the value is a register char
-      if (value.length() == 1 && (value.charAt(0) >= 'a' && value.charAt(0) <= 'z')) {
+      // Check if the first value is an operator
+      if (values[0].equals("+") || values[0].equals("-")
+              || values[0].equals("*") || values[0].equals("/")) {
+        System.err.println("Error: Invalid expression.");
+        return null;
+      } else if (value.length() == 1 && (value.charAt(0) >= 'a' && value.charAt(0) <= 'z')) {
+        // Check if the value is a register char
         BigFraction regValue = registers.get(value.charAt(0));
 
+        // Check if the register stored anything
         if (regValue == null) {
-          System.err.println("Error: Unknown register.\n");
+          System.err.println("Error: Unknown register.");
           return null;
         } // if
 
+        numVals++;
         if (currentValue == null) {
           currentValue = regValue;
           calculator.clear();
           calculator.add(regValue);
         } else {
-          performOperation(calculator, regValue, operator);
+          if (!performOperation(calculator, regValue, operator)) {
+            return null;
+          } // if
         } // else
-      } // if
-
-      // Check if the value is an operator
-      else if (value.equals("+") || value.equals("-") || value.equals("*") || value.equals("/")) {
+      } else if (value.equals("+") || value.equals("-") || value.equals("*") || value.equals("/")) {
+        // Check if the value is an operator
+        numOps++;
         operator = value;
-      } // else if
-
-      // Check if the value is a fraction, integer, or negative fraction
-      else if (BigFraction.isInteger(value) || BigFraction.isFraction(value)) {
+      } else if (BigFraction.isInteger(value) || BigFraction.isFraction(value)) {
+        // Check if the value is a fraction, integer, or negative fraction
         BigFraction numValue = null;
-        if (BigFraction.isInteger(value)){
+        if (BigFraction.isInteger(value)) {
           numValue = new BigFraction(Integer.valueOf(value));
         } else {
           numValue = new BigFraction(value);
         } // if
 
-        System.out.println("currentValue in num before null: " + currentValue);
+        numVals++;
         if (currentValue == null) {
-          System.out.println("currentValue in num null: " + currentValue);
           currentValue = numValue;
           calculator.clear();
           calculator.add(currentValue);
         } else {
-          performOperation(calculator, numValue, operator);
+          if (!performOperation(calculator, numValue, operator)) {
+            return null;
+          } // if
         } // if
 
-      // Not an operator, a fraction, an integer, negative fraction, register char
+        // Not an operator, a fraction, an integer, negative fraction, register char
       } else {
-        System.err.println("Error: Unexpected input for an expression.\n");
+        System.err.println("Error: Invalid expression.");
         return null;
       } // if
     } // for
-    return calculator.get();
-  }
+
+    if (numOps != (numVals - 1)) {
+      System.err.println("Error: Invalid expression.");
+      return null;
+    } else {
+      return calculator.get();
+    } // if
+  } // evaluateExpression
 
   /**
    * Handles the STORE command, storing the last computed value in a register.
+   *
+   * @param values an array of strings representing the command and register
+   * @param calculator the BFCalculator instance to get the last value from
+   * @param registers the BFRegisterSet to store the value
    */
-  private static void handleStoreCommand(String[] values, BFCalculator calculator, BFRegisterSet registers) {
+  public static void
+        handleStoreCommand(String[] values, BFCalculator calculator, BFRegisterSet registers) {
     if (values.length == 2) {
       char register;
       if (values[1].length() == 1) {
         register = values[1].charAt(0);
       } else {
-        System.err.println("Error: Register char is not a lowercase letter.\n");
+        System.err.println("Error: Register char is not a lowercase letter.");
         return;
       } // else
 
       if (register >= 'a' && register <= 'z') {
         BigFraction lastValue = calculator.get();
         registers.store(register, lastValue);
-        System.out.println("STORED " + lastValue + " in register " + register);
+        System.out.print("STORED \n");
       } else {
-        System.err.println("Error: Register char is not a lowercase letter.\n");
+        System.err.println("Error: Register char is not a lowercase letter.");
         return;
       } // else
     } else {
-      System.err.println("Error: Incorrect number of parameters.\n");
+      System.err.println("Error: Incorrect number of parameters.");
       return;
-    } //else
+    } // else
   } // handleStoreCommand
 
   // +------+--------------------------------------------------------
   // | Main |
   // +------+
 
+  /**
+   * Main method to run the InteractiveCalculator.
+   *
+   * This method initializes the calculator and handles user input,
+   * evaluating expressions or storing values in registers.
+   *
+   * @param args command-line arguments (not used)
+   */
   public static void main(String[] args) {
     // Initialize the calculator and the register set
     BFCalculator calculator = new BFCalculator();
@@ -145,36 +191,24 @@ public class InteractiveCalculator {
 
     pen.print("Enter an expression: ");
     pen.flush();
-    
-    while(true){
+
+    while (true) {
       String input = eyes.nextLine();
       String[] values = input.split(" ");
-
-      for(String val : values){
-        pen.printf("\'%s\'\n", val);
-      }
 
       // Check if the user entered QUIT
       if (input.equals("QUIT")) {
         break;
-      }
+      } // if
+
       // Handle STORE command
       if (values[0].equals("STORE")) {
         handleStoreCommand(values, calculator, registers);
       } else {
         // Otherwise, treat it as an arithmetic expression
         BigFraction result = evaluateExpression(values, calculator, registers);
-        calculator.add(new BigFraction(10));
-        pen.println(calculator.get());
-        calculator.multiply(new BigFraction(2));
-        pen.println(calculator.get());
-        calculator.subtract(new BigFraction(5,1));
-        pen.println(calculator.get());
-        calculator.divide(new BigFraction("1/2"));
-        pen.println(calculator.get());
-
-        if (result!=null){
-          pen.println(result);
+        if (result != null) {
+          pen.println(result.toString());
         } // if
       } // else
     } // while
